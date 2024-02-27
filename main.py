@@ -52,7 +52,7 @@ def main():
             existing_entries_file.close()
     
     if new_entries:
-        html_body = "<html><body><h1>There has been an update to your EMS tracking</h1>"
+        html_body = "<html><body><h1>There has been an update to your EMS tracking number: " + itemcode + "</h1>"
 
         html_body += "<table><tr><th>Date & time</th><th>Status</th><th>Location</th>"
         for datetime, data in new_entries.items():
@@ -68,7 +68,7 @@ def main():
         context = ssl.create_default_context()
 
         message = MIMEMultipart("alternative")
-        message["Subject"] = "New update to your EMS tracking"
+        message["Subject"] = "New update to your EMS tracking #" + itemcode
         message["From"] = sender_email
         message["To"] = recipients
 
