@@ -1,8 +1,12 @@
 import sys
 import requests
-
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 API_URL = "https://api.myems.vn/TrackAndTraceItemCode"
+
+EMAIL_PORT = 587
 
 def main():
     existing_entries_file = open('existing_entries.txt', 'r')
@@ -12,16 +16,20 @@ def main():
     existing_entries_file.close()
 
 
-    itemcode = ""
-    if len(sys.argv) > 1:
-        itemcode = sys.argv[1]
+    itemcode = sys.argv[1]
+    
+    smtp_server = sys.argv[2]
+    starttls_port = sys.argv[3]
+    sender_email = sys.argv[4]
+    password = sys.argv[5]
+    recipients = sys.argv[6]
 
     language = "1"
-    if len(sys.argv) > 2:
-        language = sys.argv[2]
+    if len(sys.argv) > 7:
+        language = sys.argv[7]
 
     params = {
-        "itemcode": sys.argv[1],
+        "itemcode": itemcode,
         "language": language
     }
 
@@ -44,7 +52,7 @@ def main():
             existing_entries_file.close()
     
     if new_entries:
-        html_body = "<h1>There has been an update to your EMS tracking</h1>"
+        html_body = "<html><body><h1>There has been an update to your EMS tracking</h1>"
 
         html_body += "<table><tr><th>Date & time</th><th>Status</th><th>Location</th>"
         for datetime, data in new_entries.items():
@@ -53,7 +61,35 @@ def main():
 
         html_body += "<br><br><a href='https://ems.com.vn/tra-cuu/tra-cuu-buu-gui?code=" + itemcode + "' target='_blank'>Link to tracking website</a>"
 
-        print(html_body)
+        html_body += "</body></html>"
+
+        
+        # Send email
+        context = ssl.create_default_context()
+
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "New update to your EMS tracking"
+        message["From"] = sender_email
+        message["To"] = recipients
+
+        part1 = MIMEText(html_body, "html")
+        message.attach(part1)
+
+        try:
+            server = smtplib.SMTP(smtp_server,starttls_port)
+            server.ehlo() # Can be omitted
+            server.starttls(context=context) # Secure the connection
+            server.ehlo() # Can be omitted
+            server.login(sender_email, password)
+
+            
+            server.sendmail(sender_email, recipients, message.as_string())
+        except Exception as e:
+            # Print any error messages to stdout
+            print(e)
+        finally:
+            server.quit()
+
         return new_entries
 
 
