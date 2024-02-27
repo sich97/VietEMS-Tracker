@@ -9,6 +9,9 @@ API_URL = "https://api.myems.vn/TrackAndTraceItemCode"
 EMAIL_PORT = 587
 
 def main():
+    create_file = open('existing_entries.txt', 'x')
+    create_file.close()
+
     existing_entries_file = open('existing_entries.txt', 'r')
     existing_entries = {}
     for line in existing_entries_file:
