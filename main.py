@@ -3,6 +3,7 @@ import requests
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import certifi
 
 API_URL = "https://api.myems.vn/TrackAndTraceItemCode"
 
@@ -71,7 +72,7 @@ def main():
 
         
         # Send email
-        context = ssl.create_default_context()
+        context = ssl.create_default_context(cafile=certifi.where())
 
         message = MIMEMultipart("alternative")
         message["Subject"] = "New update to your EMS tracking #" + itemcode
