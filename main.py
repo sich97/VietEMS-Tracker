@@ -9,8 +9,11 @@ API_URL = "https://api.myems.vn/TrackAndTraceItemCode"
 EMAIL_PORT = 587
 
 def main():
-    create_file = open('existing_entries.txt', 'x')
-    create_file.close()
+    try:
+        create_file = open('existing_entries.txt', 'x')
+        create_file.close()
+    except Exception as e:
+        pass
 
     existing_entries_file = open('existing_entries.txt', 'r')
     existing_entries = {}
@@ -51,7 +54,7 @@ def main():
             new_entries[entry["NGAY_TRANG_THAI"]] = entry_parse[2:]
 
             existing_entries_file = open('existing_entries.txt', 'a')
-            existing_entries_file.write(entry["NGAY_TRANG_THAI"] + ": " + str(entry_parse) + "\n")
+            existing_entries_file.write(entry["NGAY_TRANG_THAI"] + ": " + str(str(entry_parse).encode("utf-8")) + "\n")
             existing_entries_file.close()
     
     if new_entries:
